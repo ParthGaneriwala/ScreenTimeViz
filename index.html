@@ -26,6 +26,17 @@
     </style>
 </head>
 <body>
+<button onclick="filterCategory('all')">Show All</button>
+    <button onclick="filterCategory('all')">Show All</button>
+    <button onclick="filterCategory('Netflix')">Netflix</button>
+    <button onclick="filterCategory('Instagram')">Instagram</button>
+    <button onclick="filterCategory('Google Chrome')">Google Chrome</button>
+    <button onclick="filterCategory('YouTube')">YouTube</button>
+    <button onclick="filterCategory('WhatsApp')">WhatsApp</button>
+    <button onclick="filterCategory('Snapchat')">Snapchat</button>
+    <button onclick="filterCategory('LinkedIn')">LinkedIn</button>
+    <button onclick="filterCategory('Discord')">Discord</button>
+    <button onclick="filterCategory('Zoom')">Zoom</button>
     <svg id="visualization"></svg>
 
     <script>
@@ -170,7 +181,15 @@ simulation.nodes(nodes)
             }
         }
     });
-
+            function filterCategory(category) {
+        if (category === 'all') {
+            circles.style('display', 'block');
+            labels.style('display', 'block');
+        } else {
+            circles.style('display', d => d.category === category ? 'block' : 'none');
+            labels.style('display', d => d.category === category ? 'block' : 'none');
+        }
+    }
         function drag(simulation) {
             function dragstarted(event) {
                 if (!event.active) simulation.alphaTarget(0.3).restart();

@@ -1,0 +1,37 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyCompatibilityInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ourVersions">
+        <value>
+          <list size="4">
+            <item index="0" class="java.lang.String" itemvalue="3.6" />
+            <item index="1" class="java.lang.String" itemvalue="3.7" />
+            <item index="2" class="java.lang.String" itemvalue="3.8" />
+            <item index="3" class="java.lang.String" itemvalue="3.9" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="12">
+            <item index="0" class="java.lang.String" itemvalue="ninja" />
+            <item index="1" class="java.lang.String" itemvalue="py-cpuinfo" />
+            <item index="2" class="java.lang.String" itemvalue="tokenizers" />
+            <item index="3" class="java.lang.String" itemvalue="transformers" />
+            <item index="4" class="java.lang.String" itemvalue="tensorflow" />
+            <item index="5" class="java.lang.String" itemvalue="sentence-transformers" />
+            <item index="6" class="java.lang.String" itemvalue="torch" />
+            <item index="7" class="java.lang.String" itemvalue="wget" />
+            <item index="8" class="java.lang.String" itemvalue="glove-python-binary" />
+            <item index="9" class="java.lang.String" itemvalue="keras" />
+            <item index="10" class="java.lang.String" itemvalue="tensorflow-cpu" />
+            <item index="11" class="java.lang.String" itemvalue="datasets" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
