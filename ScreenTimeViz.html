@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubble Simulation</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        svg {
+            width: 100%;
+            height: 100%;
+            border: 1px solid black;
+        }
+        text {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            text-anchor: middle;
+        }
+        .outer-circle {
+            fill: none;
+            stroke: black;
+        }
+        .circle {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <svg id="visualization"></svg>
+
+    <script>
+        const radii = [150, 75, 30, 60, 45, 55, 75, 25, 100];
+        const categories = ["Netflix", "Instagram", "Google Chrome", "YouTube","WhatsApp", "Snapchat", "LinkedIn", "Discord", "Zoom"];
+        const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+        const width = 750 - margin.left - margin.right;
+        const height = 750 - margin.top - margin.bottom;
+
+        const svg = d3.select("#visualization")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Create outer circle
+        const outerCircleRadius = Math.min(width, height) / 2 - 10;
+        svg.append("circle")
+            .attr("class", "outer-circle")
+            .attr("cx", width / 2)
+            .attr("cy", height / 2)
+            .attr("r", outerCircleRadius);
+
+        // Create force simulation
+        const simulation = d3.forceSimulation()
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("charge", d3.forceManyBody().strength(-45)) // Reduced strength to prevent excessive overlapping
+            .force("collision", d3.forceCollide().radius(d => d.radius + 150)); // low friction
+
+        // Create circles
+        const nodes = radii.map((radius, index) => ({ radius, category: categories[index], x: Math.random() * width, y: Math.random() * height }));
+        const circles = svg.selectAll("circle.circle")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("class", "circle")
+            .attr("r", d => d.radius)
+            .attr("fill", "steelblue")
+            .call(drag(simulation));
+
+        // Create text labels
+        const labels = svg.selectAll("text")
+            .data(nodes)
+            .enter().append("text")
+            .text(d => d.category)
+            .attr("text-anchor", "middle")
+            .attr("fill", "black");
+
+// Update positions of circles and labels
+simulation.nodes(nodes)
+    .on("tick", () => {
+        circles
+            .attr("cx", d => {
+                const dx = d.x - width / 2; // Calculate horizontal distance from center
+                const dy = d.y - height / 2; // Calculate vertical distance from center
+                const distance = Math.sqrt(dx * dx + dy * dy); // Calculate distance from center
+                const minDistance = outerCircleRadius - d.radius - 10; // Minimum distance from center
+                const scale = Math.min(1, minDistance / distance); // Calculate scaling factor to fit inside the outer circle with a margin of 10 pixels
+                const newX = width / 2 + dx * scale; // Calculate new x position
+                return newX;
+            })
+            .attr("cy", d => {
+                const dx = d.x - width / 2; // Calculate horizontal distance from center
+                const dy = d.y - height / 2; // Calculate vertical distance from center
+                const distance = Math.sqrt(dx * dx + dy * dy); // Calculate distance from center
+                const minDistance = outerCircleRadius - d.radius - 10; // Minimum distance from center
+                const scale = Math.min(1, minDistance / distance); // Calculate scaling factor to fit inside the outer circle with a margin of 10 pixels
+                const newY = height / 2 + dy * scale; // Calculate new y position
+                return newY;
+            });
+
+        labels
+            .attr("x", d => {
+                const dx = d.x - width / 2; // Calculate horizontal distance from center
+                const dy = d.y - height / 2; // Calculate vertical distance from center
+                const distance = Math.sqrt(dx * dx + dy * dy); // Calculate distance from center
+                const minDistance = outerCircleRadius - d.radius - 10; // Minimum distance from center
+                const scale = Math.min(1, minDistance / distance); // Calculate scaling factor to fit inside the outer circle with a margin of 10 pixels
+                const newX = width / 2 + dx * scale; // Calculate new x position
+                return newX;
+            })
+            .attr("y", d => {
+                const dx = d.x - width / 2; // Calculate horizontal distance from center
+                const dy = d.y - height / 2; // Calculate vertical distance from center
+                const distance = Math.sqrt(dx * dx + dy * dy); // Calculate distance from center
+                const minDistance = outerCircleRadius - d.radius - 10; // Minimum distance from center
+                const scale = Math.min(1, minDistance / distance); // Calculate scaling factor to fit inside the outer circle with a margin of 10 pixels
+                const newY = height / 2 + dy * scale; // Calculate new y position
+                return newY;
+            });
+
+        // Collision detection and position adjustment for circles
+        const circleNodes = circles.nodes();
+        for (let i = 0; i < circleNodes.length; i++) {
+            const circleNode = circleNodes[i];
+            const circle = d3.select(circleNode);
+            const circleBox = circleNode.getBBox();
+            for (let j = i + 1; j < circleNodes.length; j++) {
+                const otherCircleNode = circleNodes[j];
+                const otherCircle = d3.select(otherCircleNode);
+                const otherCircleBox = otherCircleNode.getBBox();
+                const dx = circleBox.x - otherCircleBox.x;
+                const dy = circleBox.y - otherCircleBox.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const minDistance = circleBox.width / 2 + otherCircleBox.width / 2 + 2; // Minimum distance to prevent overlap
+                if (distance < minDistance) {
+                    // Calculate the overlap and adjust positions to prevent overlap
+                    const overlap = minDistance - distance;
+                    const adjustX = (overlap * dx / distance) / 2;
+                    const adjustY = (overlap * dy / distance) / 2;
+                    circle.attr("cx", +circle.attr("cx") + adjustX);
+                    circle.attr("cy", +circle.attr("cy") + adjustY);
+                    otherCircle.attr("cx", +otherCircle.attr("cx") - adjustX);
+                    otherCircle.attr("cy", +otherCircle.attr("cy") - adjustY);
+                }
+            }
+        }
+
+        // Collision detection and position adjustment for labels
+        const labelNodes = labels.nodes();
+        for (let i = 0; i < labelNodes.length; i++) {
+            const labelNode = labelNodes[i];
+            const label = d3.select(labelNode);
+            const labelBox = labelNode.getBBox();
+            for (let j = i + 1; j < labelNodes.length; j++) {
+                const otherLabelNode = labelNodes[j];
+                const otherLabel = d3.select(otherLabelNode);
+                const otherLabelBox = otherLabelNode.getBBox();
+                const dx = labelBox.x - otherLabelBox.x;
+                const dy = labelBox.y - otherLabelBox.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const minDistance = labelBox.width / 2 + otherLabelBox.width / 2 + 2; // Minimum distance to prevent overlap
+                if (distance < minDistance) {
+                    // Calculate the overlap and adjust positions to prevent overlap
+                    const overlap = minDistance - distance;
+                    const adjustX = (overlap * dx / distance) / 2;
+                    const adjustY = (overlap * dy / distance) / 2;
+                    label.attr("x", +label.attr("x") + adjustX);
+                    label.attr("y", +label.attr("y") + adjustY);
+                    otherLabel.attr("x", +otherLabel.attr("x") - adjustX);
+                    otherLabel.attr("y", +otherLabel.attr("y") - adjustY);
+                }
+            }
+        }
+    });
+
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0.3);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+
+            return d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended);
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
